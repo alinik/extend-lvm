@@ -10,12 +10,22 @@ if [ -z "$1" ] ; then
 fi
 device=$1;
 
-# Part 1 - Get the LVM physical and volume group info
-#----------------------------------------------------
+# Part 1 - Get the LVM physical and volume group info as well as partition info
+#------------------------------------------------------------------------------
 
 # Get the physical volume device and the volume group device
 pvdevice=$(pvs | grep $device | awk ' { print $1; } ' | xargs);
 vgdevice=$(pvs | grep $device | awk ' { print $2; } ' | xargs);
+
+# Check if it is GPT or other partition (DOS) and set the fdisk type accordingly
+disklabel_type=$(fdisk -l $device | grep -i disklabel | awk -F ":" ' { print $2; } ' | xargs);
+
+partition_type="";
+# If the disklabel type is GPT
+if [[ "$disklabel_type" == "gpt" ]] ; then partition_type="lvm"; 
+# If the disklabel type is not GPT
+else partition_type="8e";
+fi
 
 # Get the partition number of the physical volume device so that we can update that one with sfdisk in Part 2
 # This command uses the built in bash search and replace tool ${string_to_search_and_replace/$string_to_find/$string_to_replace}
@@ -37,7 +47,7 @@ EOF
 
 # Next, we write to the disk and increase the <size> to the max availabe (using the "+" sign)
 sfdisk $device -N${partition_number} --force << EOF
--,+,lvm
+-,+,$partition_type
 EOF
 
 
