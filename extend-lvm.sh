@@ -22,9 +22,9 @@ disklabel_type=$(fdisk -l $device | grep -i disklabel | awk -F ":" ' { print $2;
 
 partition_type="";
 # If the disklabel type is GPT
-if [[ "$disklabel_type" == "gpt" ]] ; then partition_type="lvm"; 
+if [[ "$disklabel_type" == "gpt" ]] ; then partition_type="31"; # Type 31 is used for LVM on GPT
 # If the disklabel type is not GPT
-else partition_type="8e";
+else partition_type="8e"; # Type 8e is used for LVM on DOS/MBR
 fi
 
 # Get the partition number of the physical volume device so that we can update that one with sfdisk in Part 2
