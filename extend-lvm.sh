@@ -50,6 +50,8 @@ sfdisk $device -N${partition_number} --force << EOF
 -,+,$partition_type
 EOF
 
+# Force the kernel to probe the size of the partition:
+partprobe
 
 # Part 3 - resize LVM logical volume
 # ----------------------------------
