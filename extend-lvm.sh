@@ -20,12 +20,8 @@ vgdevice=$(pvs | grep $device | awk ' { print $2; } ' | xargs);
 # Check if it is GPT or other partition (DOS) and set the fdisk type accordingly
 disklabel_type=$(fdisk -l $device | grep -i disklabel | awk -F ":" ' { print $2; } ' | xargs);
 
-partition_type="";
-# If the disklabel type is GPT
-if [[ "$disklabel_type" == "gpt" ]] ; then partition_type="31"; # Type 31 is used for LVM on GPT
-# If the disklabel type is not GPT
-else partition_type="8e"; # Type 8e is used for LVM on DOS/MBR
-fi
+# Set the partition type to be the GUID for LVM: (This will work for MBR/GPT and in EFI or non-EFI scenarios
+partition_type="E6D6D379-F507-44C2-A23C-238F2A3DF928";
 
 # Get the partition number of the physical volume device so that we can update that one with sfdisk in Part 2
 # This command uses the built in bash search and replace tool ${string_to_search_and_replace/$string_to_find/$string_to_replace}
